@@ -1,1 +1,95 @@
+#Lucky Numbers! 3 numbers will be generated. If one of them is a '5', you lose! 
+<法1>:
+import random
 
+count = 0
+while count < 3:
+    num = random.randint(1,6)
+    print(num)
+    if num == 5:
+        print("you lose!")
+        break
+    count += 1
+else:
+  print("you win!")
+  
+<法2>:開關式的解法：
+import random
+ran = [0,0,0]
+win = 1
+for count in range(3):
+    ran[count] = random.randint(1,6)
+    if ran[count] == 5:
+        win = 0
+if win == 0:
+    print("you lose!")
+else:
+    print("you win!")
+print(ran)
+
+#一次擲3枚硬幣，只要有反面就輸了。
+<法1>:
+import random
+
+ans=""
+count = 0 
+while count < 3:
+    ans += str(random.randint(0,1))
+    count += 1
+if ans == "000":
+    print("you win!")
+else:
+    print("you lose!")
+print(ans)
+
+#兩位玩家擲骰子比大小，三戰兩勝：
+<法1>:
+import random
+listA = [0,0,0]
+listB = [0,0,0]
+win = 0
+count = 0
+for x in range(3):
+    listA[x] = random.randint(1,6)
+    listB[x] = random.randint(1,6)
+while count < 3:
+    if listA[count] >listB[count]:
+        win += 1
+    elif listA[count] <listB[count]:
+        win -= 1
+    count += 1
+print(listA)
+print(listB)
+if win > 0:
+    print("A玩家勝利")
+elif win < 0:
+    print("B玩家勝利")
+else:
+    print("平手")
+
+#終極密碼：設定上下限，逐漸逼近答案。
+<法1>:
+import random
+ans = random.randint(1,100)
+max1 = 100
+min1 = 0
+while True:
+    guess = input("請猜%d~%d之間的數字" %(min1,max1))
+    try:
+        guess = int(guess)
+    except ValueError:
+        print("格式錯誤，請輸入正確格式\n")
+        continue
+    if guess >= max1 or guess <= min1:
+        print("請輸入" +str(min1)+"~"+str(max1)+"之間的整數\n")
+        continue
+    if guess > ans:
+        max1 = guess
+        print("答案介於%d~%d之間" %(min1,max1))
+    elif guess < ans:
+        min1 =guess
+        print("答案介於%d~%d之間" %(min1,max1))
+    else:
+        print("你答對了!")
+        break
+ 
