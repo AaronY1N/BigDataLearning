@@ -1,0 +1,47 @@
+#判斷奇偶數，結束後詢問是否結束程式。
+def judge (a):
+    if a % 2 == 1:
+        print("%d is an odd number" %(a))
+    else:
+        print("%d is an even number" %(a))
+while True:
+    num1 = input("Please enter an integer: ")
+    try:
+        num1 = int(num1)
+    except ValueError:
+        print("Please enter correct form")
+        continue #重新執行while這個迴圈,後面不執行
+    judge(num1)
+    while True:
+        quest = input("Continue or not? Enter (Y/N): ")
+        if quest == "Y" or quest =="N":
+            break
+        else:
+            print("輸入格式錯誤，重新輸入")
+    if quest == "N":
+        break
+
+#輾轉相除法:
+def main(x,y):#限制只能用迴圈式寫法不能用while Ture
+    if x < y :
+        x,y =y,x 
+    if x % y == 0:
+        print("%d為最大公因數" %(y))
+    else:
+        z = x % y
+        x,y =y,z
+        return main(x,y)
+while True:#防呆    
+    x = input("請輸入第一個正整數:")
+    y = input("請輸入第一個正整數:")
+    try:
+        x = int(x)
+        y = int(y)
+        if x <= 0 or y <=0:
+            print("不可以輸入0或負數，謝謝")
+            continue
+    except ValueError:
+        print("請輸入兩個正整數")
+        continue
+    main(x,y)
+    break
