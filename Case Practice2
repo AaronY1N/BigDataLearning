@@ -1,1 +1,74 @@
+#幾A幾B的遊戲，尚有部分bug。
+<法1>
+import random
+op=1 #循環開關
+def setnum(ans):#隨機從0~9取數字設定答案，數字不重複
+    x = 0
+    while x !=4:
+        num1=random.randint(0,9)
+        if num1 not in ans:
+            ans[x] = num1
+            x += 1
+    print(ans)
+    return ans    
+def comp(count_a,count_b,ans):#輸入並且與答案比對   
+    while True:
+        for x in range(4):
+            try:#增加防呆機制
+                guess[x]=int(input("請輸入%d個數字"%(x+1)))
+            except ValueError:
+                print("格式錯誤，無法辨識")
+                continue
+            if guess[x] == ans[x]:
+                count_a += 1
+            elif guess[x] in ans:
+                count_b += 1
+        break
+    return count_a,count_b
+def end():#確認是否結束
+    op = 1
+    ans=[11,11,11,11]
+    again = input("是否在玩一次? (Y/N)")
+    if again == "Y":
+        ans = setnum(ans)
+    else:
+        op = 0
+    return ans,op
+#主程式
+ans=setnum(ans) #設定答案
+while op!=0:
+    count_a =0#給count_a,count_b清0，重新跑的時候才不會重複計算
+    count_b =0
+    count_a,count_b = comp(count_a,count_b,ans)
+    #顯示結果並確認是否獲勝
+    print(count_a,"A",count_b,"B")
+    if count_a ==4:
+        print("恭喜你答對了")
+        ans,op = end()
 
+<法2>
+import random
+list1 = [0,1,2,3,4,5,6,7,8,9]
+random.shuffle(list1)
+ans=''
+count_a = 0
+count_b = 0
+for i in range(4):
+    ans += str(list1[i])
+while True:
+    number =input('Guess the number: ')
+    if not number.isdigit():
+        pass
+    else:
+        if number == ans:
+            print("you get the correct number")
+            break
+        for i in range(4):
+            for j in range(4):
+                if i == j and number[i] == ans[j]:
+                    count_a +=1
+                elif number[i] == ans[j]:
+                    count_b +=1
+        print("%dA%dB"%(count_a,count_b))
+        count_a = 0
+        count_b = 0
