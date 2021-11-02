@@ -1,0 +1,40 @@
+#爬蟲抓取1111人力銀行-搜尋「大數據」相關職缺
+import requests as rq
+import openpyxl
+from bs4 import BeautifulSoup
+wb = openpyxl.Workbook()
+ws = wb.active
+ws["A1"] = "職缺名稱"
+ws["B1"] = "職缺連結"
+ws["C1"] = "公司行號"
+ws["D1"] = "工作地點"
+ws["E1"] = "薪資待遇"
+ws["F1"] = "經歷需求"
+ws["G1"] = "學歷需求"
+ws["H1"] = "聯絡人"
+page = 0
+percent = 0
+total = 61#抓取多少頁數
+while page < total:
+    try:#避免有錯誤出現使用try(因為網頁中有許多不定情況或資料缺失)
+        page += 1
+        url = rq.get("https://www.1111.com.tw/search/job?ks=%E5%A4%A7%E6%95%B8%E6%93%9A&page="+str(page))
+        soup = BeautifulSoup(url.text)#.text就是html的格式
+        percent +=1 #進度條使用
+        for job in soup.find_all('ul',class_="srh-body__result")[0].find_all("div",class_="item__job-info"):
+            url2 = rq.get(job.select("div")[0].a["href"]) 
+            soup2 = BeautifulSoup(url2.text)
+            ws.append([job.select("div")[0].a["title"],
+                       job.select("div")[0].a["href"],
+                       job.select("div")[1].a["aria-label"],
+                       job.select("div")[3].select("i")[0]["aria-label"],
+                       job.select("div")[3].select("i")[1]["aria-label"],
+                       job.select("div")[3].select("i")[2]["aria-label"],
+                       job.select("div")[3].select("i")[3]["aria-label"],
+                       soup2.find_all("div",class_="job-detail-panel--apply-profile-text")[0].span.string
+                      ])
+            print('\r' + '[Web Scraping]:%.2f%%;' % (float(percent/total*100)),end="") #顯示%
+    except:
+        pass#錯誤就跑下一圈
+wb.save("1111.xlsx")
+print("爬取人力銀行1111資料完成!")
