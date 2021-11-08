@@ -1,0 +1,85 @@
+py3-0001
+# 1
+# print("|%7.2f%7.2f|" %(34.12,2.321))
+# print("|%-7.2f%-7.2f|"%(3.1,3.1234))
+
+# 2
+# x = int(input("輸入正整數"))
+# if x % 3 ==0 and x % 5 == 0:
+#     print("%s is a multiple of 3 and 5."%(x) )
+# else:
+#     print("%s is not a multiple of 3 and 5."%(x) )
+
+# 3
+# a = int(input("輸入正整數a="))
+# b = int(input("輸入正整數b="))
+# sum1 =0
+# for nums in range(a,b+1):
+#     if nums % 2 ==0:
+#         sum1 += nums
+# print(sum1)
+
+# 4
+# list1 = []
+# while True:
+#     n = int(input("輸入數值"))
+#     list1.append(n)
+#     if n == 9999:
+#         break
+# print(min(list1))
+
+# 5
+# x = int(input("請輸入數值"))
+# y = int(input("請輸入數值"))
+# def compute(x,y):
+#     return x*y
+# print(compute(x,y))
+
+# 6
+# list1 = []
+# sum1 = 0
+# for x in range(5):
+#     nums = input("請輸入:")
+#     if nums == "K":
+#         nums = 13
+#     elif nums =="Q":
+#         nums = 12
+#     elif nums == "J":
+#         nums =11
+#     else:
+#         nums = int(nums)
+#     list1.append(nums)
+# for y in range(len(list1)):
+#      sum1 += list1[y]
+# print(sum1)
+
+# 7
+# list1 = []
+# list2 = []
+# while True:
+#     x = int(input("輸入數字:"))
+#     if x == -9999:
+#         break
+#     else:
+#         list1.append(x)
+# while True:
+#     x = int(input("輸入數字:"))
+#     if x == -9999:
+#         break
+#     else:
+#         list2.append(x)
+# list3 = list1+list2
+# print(tuple(list3))
+# list3.sort()
+# print(list3)
+# 8
+# sum1 = 0
+# str1 = input("輸入一個字串:")
+# list1 = []
+# for x in range(len(str1)):
+#     list1.append(str1[x])
+#     print("ASCII code for '%s' is %s"%(list1[x],ord(str1[x])))
+#     sum1 +=ord(str1[x])
+# print(sum1)
+
+#第9題沒有read檔案所以沒寫
