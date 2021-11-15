@@ -1,0 +1,76 @@
+#以下設定搜尋失業者為例
+#目前已知bug網頁有可能爬出預算金額不正確的地方(因為有兩種網頁)可以設定if使其判別修正bug
+import requests as rq
+import openpyxl
+import time
+import random
+from bs4 import BeautifulSoup
+form_data ={
+'tmpQuerySentence':None #沒東西補None
+,'timeRange':'110/1/1-110/12/31'#所有資訊改成字串格式
+,'querySentence':'失業者'#將key-value用,隔開
+,'tenderStatusType':'招標'#有半形空格要刪除(因為複製而產生的)
+,'sortCol':'TENDER_NOTICE_DATE'
+,'timeRangeTemp':'110/1/1-110/12/31'
+,'sym':'on'
+,'itemPerPage':'50'
+}
+url = 'https://web.pcc.gov.tw/prkms/prms-searchBulletionClient.do?root=tps'
+wb = openpyxl.Workbook()
+ws = wb.active
+ws['A1'] = '標案名稱'
+ws['B1'] = '機關名稱'
+ws['C1'] = '截止投標'
+ws['D1'] = '預算金額'
+ws['E1'] = '網址'
+ws['F1'] = '聯絡人'
+ws['G1'] = '連絡電話'
+
+res = rq.post(url,form_data)
+soup = BeautifulSoup(res.text)
+page = 0 #觀察目前
+n = 0#觀察目前計算到第幾筆資料
+while soup.find_all('a',title = '前往下一頁') != []: #利用下一頁按鈕失效來執行迴圈
+    page += 1
+    n += 1
+    print("正在爬取第",page,"頁面")
+    for case in soup.select('tbody')[0].select('tr'):#for 物件 in 物件集合
+        url2 = 'https://web.pcc.gov.tw'+case.a['href'] #第二層網頁爬蟲
+        res2 = rq.get(url2)
+        soup2 = BeautifulSoup(res2.text)
+        ws.append([
+            case.select('td')[3].a.div.string,
+            case.select('td')[2].string,
+            case.select('td')[6].string,
+            soup2.find_all('tr',class_="tender_table_tr_2")[10].td.text.strip(),#將特殊字元刪除
+            url2,
+            soup2.find_all('tr',class_="tender_table_tr_1")[4].td.text.strip(),#將特殊字元刪除
+            soup2.find_all('tr',class_="tender_table_tr_1")[5].td.string.strip()#將特殊字元刪除
+        ])
+        time.sleep(random.randint(15,25))#避免被網站封鎖
+        print("完成第",n,"筆資料")
+        wb.save("政府招標test.xlsx")
+    res =rq.get('https://web.pcc.gov.tw/prkms/prms-searchBulletionClient.do'+soup.find_all('a',title = '前往下一頁')[0]['href'])
+    soup = BeautifulSoup(res.text)
+    
+else:#因為最後一頁會被miss掉所以補上else
+    page += 1
+    n += 1
+    print("正在爬取第",page,"頁面")
+    for case in soup.select('tbody')[0].select('tr'):
+        url2 = 'https://web.pcc.gov.tw'+case.a['href']
+        res2 = rq.get(url2)
+        soup2 = BeautifulSoup(res2.text)
+        ws.append([
+            case.select('td')[3].a.div.string,
+            case.select('td')[2].string,
+            case.select('td')[6].string,
+            soup2.find_all('tr',class_="tender_table_tr_2")[10].td.text.strip(),
+            url2,
+            soup2.find_all('tr',class_="tender_table_tr_1")[4].td.text.strip(),
+            soup2.find_all('tr',class_="tender_table_tr_1")[5].td.string.strip()
+        ])  
+        time.sleep(random.randint(15,25))#避免被網站封鎖
+        print("完成第",n,"筆資料")
+        wb.save("政府招標test.xlsx")
+print("爬取政府招標資料完成")
