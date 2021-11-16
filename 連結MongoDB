@@ -1,0 +1,53 @@
+import pymongo
+client = pymongo.MongoClient("mongodb+srv://user:<password>@learning.pgt0o.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+col = client.crawler.jobs #建立一個資料庫叫crawler1111,collection叫jobs
+
+import requests as rq
+from bs4 import BeautifulSoup
+page = 0
+percent = 0
+total = 61#抓取多少頁數
+while page < total:
+    try:#避免有錯誤出現使用try(因為網頁中有許多不定情況或資料缺失)
+        page += 1
+        url = rq.get("https://www.1111.com.tw/search/job?ks=%E5%A4%A7%E6%95%B8%E6%93%9A&page="+str(page))
+        soup = BeautifulSoup(url.text)#.text就是html的格式
+        percent +=1 #進度條使用
+        for job in soup.find_all('ul',class_="srh-body__result")[0].find_all("div",class_="item__job-info"):
+            wage ="" #每抓一次wage要清空,放下一筆
+            for word in job.select("div")[3].select("i")[1]["aria-label"]:
+                if word.isdigit() or word == "~" or word =="萬" or word ==".": #保留數字,需求字元
+                    wage += word #將所有符合的結果放入wage暫存
+            if "~" in wage:#調整薪資數據資料改為上下限
+                l
+                ow_wage = wage[0:wage.find("~")]
+                high_wage = wage[wage.find("~")+1:len(wage)]
+            else:
+                low_wage = wage
+                high_wage = wage
+            if '萬' in low_wage:
+                low_wage=float(low_wage[0:low_wage.find("萬")])*10000
+            else:
+                low_wage = float(low_wage)
+            if "萬" in high_wage:
+                high_wage = float(high_wage[0:high_wage.find("萬")])*10000
+            else:
+                high_wage = float(high_wage)
+            url2 = rq.get(job.select("div")[0].a["href"]) 
+            soup2 = BeautifulSoup(url2.text)
+            
+            col.insert_one({"職缺名稱":job.select("div")[0].a["title"], #把每一筆資料insert到mongoDB,匯入格式為dic
+                       "職缺連結":job.select("div")[0].a["href"],
+                       "公司行號":job.select("div")[1].a["aria-label"],
+                       "工作地點":job.select("div")[3].select("i")[0]["aria-label"],
+                       "薪資待遇":job.select("div")[3].select("i")[1]["aria-label"],
+                       "經歷需求":job.select("div")[3].select("i")[2]["aria-label"],
+                       "學歷需求":job.select("div")[3].select("i")[3]["aria-label"],
+                       "聯絡人":soup2.find_all("div",class_="job-detail-panel--apply-profile-text")[0].span.string,
+                       "給薪方式":job.select("div")[3].select("i")[1]["aria-label"][:2],
+                       "薪資下限":low_wage,
+                       "薪資上限":high_wage})
+            print('\r' + '[Web Scraping]:%.2f%%;' % (float(percent/total*100)),end="") #顯示%
+    except:
+        pass#錯誤就跑下一圈
+print("爬取人力銀行1111資料完成!")
