@@ -1,0 +1,29 @@
+import requests as rq
+import json
+import jieba
+import operator
+url ="FB提供的api網址"
+res = rq.get(url)
+word = []
+while True:
+    jd = json.loads(res.text)
+    for post in jd['data']:
+        if 'message' in post:
+            word +=jieba.cut(post['message'])#jieba智慧切割字詞
+    if "paging" in jd:
+        res = rq.get(jd['paging']['next'])
+    else:
+        break
+word_times={} 
+for x in word:
+    if x not in word_times: #將沒見過的字裝入dic並給予value=1
+        word_times[x]=1
+    else:
+        word_times[x] += 1#遇到重複的key就將那個key的value+1
+word_times = sorted(word_times.items(),key = operator.itemgetter(1),reverse=True)#items可以拆開成一個("字串",次數)...的list
+#operator可以指定一個list要以第幾個作為排序依據,itemgetter(1)是數字位子
+for ele in word_times:
+    if len(ele[0] ) >=2:#限制字數至少為2
+        print(ele[0],ele[1])
+
+最後使用視覺化軟體將資料放入產生文字雲效果
