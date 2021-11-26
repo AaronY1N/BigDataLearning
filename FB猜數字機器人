@@ -1,0 +1,53 @@
+import requests as rq
+import random
+import json
+import time
+token = '自己補上'
+post_id ='需要此機器人的文章id'
+url ='https://graph.facebook.com/v12.0/'+post_id+'/comments?access_token='+token
+res = rq.get(url)
+jd_post =json.loads(res.text)
+print(len(jd_post['data']))
+user_data={}#存取方式為{留言者的ID:[ans,num_min,num_max,目前狀態]} 目前狀態:1已回覆 2已答對
+reply=[]
+while 1:
+    for comment in jd_post['data']:#把該貼文的留言資料取出
+        if comment['id'] not in user_data:#針對新使用者創建資料
+            print("有人開始玩了喔")#用來測試程式是否正常運行
+            num_min=1
+            num_max=100
+            ans = random.randint(num_min,num_max) #隨機一個答案給此使用者
+            user_data[comment['id']]=[ans,num_min,num_max,1]#建立初始狀態
+            num=int(comment['message'])#取出使用者留言的數字
+            if num == user_data[comment['id']][0]:#猜對
+                res =rq.post('https://graph.facebook.com/v12.0/'+comment['id']+'/comments?message=恭喜猜對&access_token='+token)#針對該答對id給予回覆
+                user_data[comment['id']][3]=2 #將該使用者的狀態改為已答對(才不會導致再次判斷)
+            elif num>ans:#大於答案
+                user_data[comment['id']][2]=num
+                res =rq.post('https://graph.facebook.com/v12.0/'+comment['id']+'/comments?message=請輸入'+str(user_data[comment['id']][1])+'~'+str(num)+'&access_token='+token)
+            else:
+                user_data[comment['id']][1]=num
+                res =rq.post('https://graph.facebook.com/v12.0/'+comment['id']+'/comments?message=請輸入'+str(num)+'~'+str(user_data[comment['id']][2])+'&access_token='+token)
+
+        elif user_data[comment['id']][3] ==1 :#針對已留言但沒猜對者(已經給予提示回覆)
+            res=rq.get('https://graph.facebook.com/v12.0/'+comment['id']+'/comments?access_token='+token)#調閱留言的回覆
+            jd_comment=json.loads(res.text)
+            if len(jd_comment['data']) ==2:#看到提示(位置在0)給予回覆(位置1)->總長度=2
+                for reply in jd_comment["data"]:
+                    if "請輸入" in reply['message']:#請輸入 in這個條件只要內含就算數,不用完全一樣
+                        rq.delete('https://graph.facebook.com/v12.0/'+reply['id']+'?access_token='+token)#刪除含有請輸入的回覆
+                    else:#給予新的提示回覆            
+                        num = int(reply['message'])
+                        if num == user_data[comment['id']][0]:
+                            res =rq.post('https://graph.facebook.com/v12.0/'+comment['id']+'/comments?message=恭喜猜對&access_token='+token)
+                            user_data[comment['id']][3]=2
+                        elif num>ans:#大於答案
+                            user_data[comment['id']][2]=num
+                            res = rq.post('https://graph.facebook.com/v12.0/'+comment['id']+'/comments?message=請輸入'+str(user_data[comment['id']][1])+'~'+str(num)+'的數字&access_token='+token)
+                        else:
+                            user_data[comment['id']][1]=num
+                            res =rq.post('https://graph.facebook.com/v12.0/'+comment['id']+'/comments?message=請輸入'+str(num)+'~'+str(user_data[comment['id']][2])+'的數字&access_token='+token)
+                        rq.delete('https://graph.facebook.com/v12.0/'+reply['id']+"?access_token="+token)#將回答的答案刪除讓回覆永遠保持只有提示    
+        else:#對於已經通關的留言不理會
+            continue
+    time.sleep(10)
