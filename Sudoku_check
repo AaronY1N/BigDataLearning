@@ -1,0 +1,51 @@
+sudoku_yes=[
+    '295743861',
+    '431865927',
+    '876192543',
+    '387459216',
+    '612387495',
+    '549216738',
+    '763524189',
+    '928671354',
+    '154938672']
+sudoku_no=[
+    '195743862',
+    '431865927',
+    '876192543',
+    '387459216',
+    '612387495',
+    '549216738',
+    '763524189',
+    '928671354',
+    '254938671']
+def check_sudoku(sudoku_list):
+    correct_sudoku='123456789'
+    columns=''
+    i=0
+    for sudoku_rows in sudoku_list:#check rows
+        for word in correct_sudoku:
+            if sudoku_rows.count(word) != 1:
+                return "No"
+    while 1:#check columns
+        for sudoku_column in sudoku_list:
+            columns += sudoku_column[i]
+        for word in correct_sudoku:
+            if columns.count(word) !=1:
+                return "No"
+        columns=""
+        i +=1
+        if i == 8:
+            columns=""
+            break
+    for x in range(0,7,3):#check_box
+        for sudoku_rows in sudoku_list:
+            for y in range(x,x+3):
+                columns +=sudoku_rows[y]
+                if len(columns) == 9:
+                    for word in correct_sudoku:
+                        if columns.count(word) !=1:
+                            return "No"
+                    columns =""
+    return "yes"
+
+print(check_sudoku(sudoku_no))
