@@ -1,0 +1,78 @@
+Scenario
+Prof. Jekyll conducts classes with students and regularly makes notes in a text file. Each line of the file contains three elements: the student's first name, the student's last name, and the number of point the student received during certain classes.
+
+The elements are separated with white spaces. Each student may appear more than once inside Prof. Jekyll's file.
+
+The file may look as follows:
+
+John	Smith	5
+Anna	Boleyn	4.5
+John	Smith	2
+Anna	Boleyn	11
+Andrew	Cox	1.5
+samplefile.txt
+
+Your task is to write a program which:
+
+asks the user for Prof. Jekyll's file name;
+reads the file contents and counts the sum of the received points for each student;
+prints a simple (but sorted) report, just like this one:
+Andrew Cox 	 1.5
+Anna Boleyn 	 15.5
+John Smith 	 7.0
+
+#定義錯誤狀態
+class StudentsDataException(Exception):#資料錯誤
+    pass
+
+
+# An exception for erroneous lines:
+class BadLine(StudentsDataException):#一行有錯誤值
+    def __init__(self, line_number, line_string):#顯示行數+錯誤字串
+        super().__init__(self)
+        self.line_number = line_number
+        self.line_string = line_string
+
+
+# An exception for an empty file.
+class FileEmpty(StudentsDataException):#整個資料是空的
+    def __init__(self):
+        super().__init__(self)
+
+
+from os import strerror
+
+# A dictionary for students' data:
+data = { }
+
+file_name = input("Enter student's data filename: ")#輸入檔案名稱
+line_number = 1
+try:
+    f = open(file_name, "rt")#打開
+    lines = f.readlines()#把所有行讀取成一個list裝載
+    f.close()
+    if len(lines) == 0:#如果是空的D
+        raise FileEmpty()#發生fileEmpty
+    for i in range(len(lines)):#檢測長度
+        line = lines[i]#把每一行用for展開
+        columns = line.split()#在分割成first name,last name,score
+        if len(columns) != 3:#如果拆不成3個表示該行有錯
+            raise BadLine(i + 1, line)#發生badline事件
+        student = columns[0] + ' ' + columns[1]#在將firstname + +lastname串起來
+        try:
+            points = float(columns[2])#分數在columns[2]
+        except ValueError:#若沒有分數
+            raise BadLine(i + 1, line)#發生badline
+        try:
+            data[student] += points #直接建立student(key)-score(value)
+        except KeyError:
+            data[student] = points
+    for student in sorted(data.keys()):#依照姓名做排序
+        print(student,'\t', data[student])
+#發生錯誤時想要顯示的內容
+except IOError as e:
+    print("I/O error occurred: ", strerror(e.errno))
+except BadLine as e:
+    print("Bad line #" + str(e.line_number) + " in source file:" + e.line_string)
+except FileEmpty:
+    print("Source file empty")
