@@ -1,0 +1,19 @@
+<讓使用者輸入檔案名稱,計算每個英文字出現次數(不論大小寫)>
+from os import strerror
+counters = {chr(ch):0 for ch in range(ord('a'),ord('z')+1)} #快速建立a~z的字典對應0
+file_name = input('enter a file name which needs to be detecting')
+
+f = open(file_name,'rt')#限定文字檔
+try:
+  for line in f:#讀行
+    for char in line:#讀每行的每個字
+      if char.isalpha():#isalpha就一定是英文字
+        counters[char.lower()] += 1
+  f.close()
+
+  for char in counter.keys():
+    cnt = counter[char]
+    if cnt >0:
+      print(char + '->'+cnt)
+except IOError as e:
+  print("I/O error occurred: ", strerror(e.errno))
